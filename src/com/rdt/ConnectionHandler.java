@@ -107,13 +107,15 @@ public class ConnectionHandler implements Subscriber {
             System.err.println("Could not send request");
             return -1L;
         }
-
+        System.out.println("sending request");
         // receive server response
         current_ttt = new TimeoutTimerTask(this.socket);
         TIMER.schedule(current_ttt, MAX_PKT_TIMEOUT);
         DatagramPacket dtgrm = new DatagramPacket(new byte[EXPECTED_PKT_LENGTH], EXPECTED_PKT_LENGTH);
         try {
+            System.out.println("waiting for ack");
             socket.receive(dtgrm);
+            System.out.println("received sth");
             current_ttt.cancel();
             if(Packet.getType(dtgrm) == Packet.T_ACK) {
                 AckPacket ack = new AckPacket(dtgrm);
@@ -131,7 +133,7 @@ public class ConnectionHandler implements Subscriber {
             System.err.println("No response received from server");
             return -1L;
         }
-
+        System.out.println("received ack");
         // send ACK packet
         AckPacket ack3 = new AckPacket(0, serverPort, serverIP);
         try {
@@ -140,6 +142,7 @@ public class ConnectionHandler implements Subscriber {
             System.err.println("Could not send ack");
             return -1L;
         }
+        System.out.println("sent ack");
 
         return fileLen;
     }
@@ -194,10 +197,16 @@ public class ConnectionHandler implements Subscriber {
         socket.close();
         current_ttt.cancel();
         TIMER.purge();
+        try {
+            fileStream.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 
     private void sendAckPacket(AckPacket pkt) {
+        System.out.println("sending Ack");
         try {
             if(rng.nextFloat() < pep) {
                 byte[] data = pkt.getChunkData();
