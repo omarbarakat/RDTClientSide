@@ -2,37 +2,53 @@ package com.rdt;
 
 public class StopAndWaitStrategy extends TransmissionStrategy {
 
-    public StopAndWaitStrategy(int numOfPackets, int initSeqNo) {
+    protected long nextAckNum;
+    protected long nextSeqToWrite;
+
+    public StopAndWaitStrategy(int numOfPackets, long initSeqNo) {
         super(numOfPackets, initSeqNo, 1);
+        nextAckNum = 1;
+        nextSeqToWrite = 1;
     }
 
     @Override
     public boolean isDone() {
-        return (nextPacketToSend==numOfPackets+1);      // next packet to send is 1 based
+        return base == (numOfPackets + initSeqNo);
     }
 
     @Override
-    void sent(long seqNo) {
-        nextPacketToSend++;
+    void sentAck(long seqNo) {
+        nextAckNum++;
     }
 
     @Override
-    public void acknowledged(long seqNo) {
-        windowStart++;
-        windowEnd++;
+    long getNextAckNo() {
+        if(nextAckNum < base)
+            return nextAckNum;
+        else
+            return -1L;
     }
 
     @Override
-    void timedout(long seqNo) {
-        nextPacketToSend--;
-    }
-
-    @Override
-    public long getNextSeqNo() {
-        if(nextPacketToSend >= windowStart && nextPacketToSend < windowEnd){
-            return nextPacketToSend;
+    boolean receivedData(long seqNo) {
+        if(seqNo == base) {
+            base++;
+            return true;
+        } else {
+            return false;
         }
-        return -1L;
     }
 
+    @Override
+    long getNextSeqNoToWrite() {
+        if(nextSeqToWrite < base)
+            return nextSeqToWrite;
+        else
+            return -1L;
+    }
+
+    @Override
+    void wroteSeqNo(long seqNoToWrite) {
+        nextSeqToWrite++;
+    }
 }

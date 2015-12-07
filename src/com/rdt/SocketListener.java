@@ -1,6 +1,6 @@
 package com.rdt;
 
-import com.rdt.utils.AckEvent;
+import com.rdt.utils.DataRecvEvent;
 import com.rdt.utils.Event;
 import com.rdt.utils.Publisher;
 import com.rdt.utils.Subscriber;
@@ -51,8 +51,8 @@ public class SocketListener implements Runnable, Publisher {
 
             try {
                 socket.receive(dtgrm);
-                AckEvent ackE = new AckEvent(dtgrm);
-                publish(ackE);
+                DataRecvEvent dataE = new DataRecvEvent(dtgrm);
+                publish(dataE);
             } catch (IOException e) {
                continue;
             }

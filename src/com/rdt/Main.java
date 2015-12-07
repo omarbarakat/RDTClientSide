@@ -5,7 +5,7 @@ import java.io.IOException;
 public class Main {
 
     public static void main(String[] args) {
-        String configFileName = args[0];
+        String configFileName = "./client.in";
         ClientConfig clientConfig = null;
         try {
             clientConfig = ClientConfig.parseConfigFile(configFileName);

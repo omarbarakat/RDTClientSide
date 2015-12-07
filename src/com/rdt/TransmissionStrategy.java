@@ -2,41 +2,48 @@ package com.rdt;
 
 public abstract class TransmissionStrategy {
 
+    // To check if done ...
     protected int numOfPackets;
-    protected int initSeqNo;
-    protected int windowSize;
-    protected long nextPacketToSend;
+    protected long initSeqNo;
 
-    protected int windowStart;
-    protected int windowEnd;
+    // Running variables
+    protected int windowSize;
+    protected long base; // first not acked.
+    protected long nextSeqNum;
 
     public static final String STOP_AND_WAIT = "StopAndWait";
     public static final String GO_BACK_N = "GoBackN";
     public static final String SELECTIVE_REPEAT = "SelectiveRepeat";
 
 
-    public TransmissionStrategy(int numOfPackets, int initSeqNo, int initWindowSize){
+    public TransmissionStrategy(int numOfPackets, long initSeqNo, int initWindowSize){
         this.numOfPackets = numOfPackets;
         this.initSeqNo = initSeqNo;
         this.windowSize = initWindowSize;
 
-        nextPacketToSend = 1;
-        windowStart = 1;
-        windowEnd = windowStart+windowSize;
+        this.nextSeqNum = initSeqNo;
+        this.base = initSeqNo;
     }
 
     abstract boolean isDone();
 
-    abstract void sent(long seqNo);
+    abstract void sentAck(long seqNo);
 
-    abstract void acknowledged(long seqNo);
+    abstract long getNextAckNo();
 
-    abstract void timedout(long seqNo);
+    /*
+    * @param    seqNo = -1L indicates corrupted data received
+    * @return   True if the packet should be kept, False to discard
+    * */
+    abstract boolean receivedData(long seqNo);
 
-    abstract long getNextSeqNo();
-
-    public int[] getWindow(){
-        int [] w = {windowStart, windowEnd};
+    public long[] getWindow(){
+        long[] w = { base, base + windowSize };
         return w;
     }
+
+
+    abstract long getNextSeqNoToWrite();
+
+    abstract void wroteSeqNo(long seqNoToWrite);
 }

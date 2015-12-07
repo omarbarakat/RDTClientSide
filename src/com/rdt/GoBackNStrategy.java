@@ -11,23 +11,28 @@ public class GoBackNStrategy extends TransmissionStrategy {
     }
 
     @Override
-    void sent(long seqNo) {
+    void sentAck(long seqNo) {
 
     }
 
     @Override
-    void acknowledged(long seqNo) {
-
-    }
-
-    @Override
-    void timedout(long seqNo) {
-
-    }
-
-    @Override
-    long getNextSeqNo() {
+    long getNextAckNo() {
         return 0;
+    }
+
+    @Override
+    boolean receivedData(long seqNo) {       // seqNo = -1L indicates corrupted data received
+        return false;
+    }
+
+    @Override
+    long getNextSeqNoToWrite() {
+        return 0;
+    }
+
+    @Override
+    void wroteSeqNo(long seqNoToWrite) {
+
     }
 
 }
